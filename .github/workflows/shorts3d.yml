@@ -1,0 +1,38 @@
+
+name: SharkX Shadows 3D Shorts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Get repository files
+        uses: actions/checkout@v4
+
+      - name: Install Blender and FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender ffmpeg
+
+      - name: Render 3D animation
+        run: blender -b --python render_3d.py
+
+      - name: Check video
+        run: |
+          test -s short.mp4
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 short.mp4
+
+      - name: Save 3D Short
+        uses: actions/upload-artifact@v4
+        with:
+          name: SharkX-3D-Short
+          path: short.mp4
+          if-no-files-found: error
+          retention-days: 7
